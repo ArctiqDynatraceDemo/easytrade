@@ -65,7 +65,7 @@ jobs:
         with:
           context: src/${{ matrix.image }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ matrix.image }}:${{ env.TAG }}
+          tags: ${{ env.REGISTRY }}/${{ matrix.image }}:pr-${{ github.event.number }}.${{ github.sha }}
           annotations: pr_number=${{ github.event.number }}
       # - name: Build Docker images (pr event)
       #   id: build-on-pr
