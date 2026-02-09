@@ -59,19 +59,19 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           echo "Building image ${{ matrix.image }} with tag: $TAG"
-          docker build src/${{ matrix.image }} -t ${{ env.REGISTRY }}/${{ matrix.image }}
+          docker build src/${{ matrix.image }} -t ${{ env.REGISTRY }}/${{ matrix.image }}:$TAG
       - name: Build Docker images (pr event)
         id: build-on-pr
         shell: bash
         if: ${{ github.event_name == 'pull_request' }}
         run: |
           echo "Building image ${{ matrix.image }} with tag: $TAG"
-          docker build src/${{ matrix.image }} -t ${{ env.REGISTRY }}/${{ matrix.image }} --annotation "pr_number=${{ github.event.number }}"
+          docker build src/${{ matrix.image }} -t ${{ env.REGISTRY }}/${{ matrix.image }}:$TAG --annotation "pr_number=${{ github.event.number }}"
       - name: Push Docker images
         shell: bash
         run: |
           echo "Pushing images to registry..."
-          docker push ${{ env.REGISTRY }}/${{ matrix.image }}
+          docker push ${{ env.REGISTRY }}/${{ matrix.image }}:$TAG
           echo "Successfully pushed all images with tag: $TAG"
 
   # octopus:
