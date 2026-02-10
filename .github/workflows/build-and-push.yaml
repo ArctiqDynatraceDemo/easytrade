@@ -24,7 +24,7 @@ env:
   PACKAGE_BASE: arctiqdynatracedemo/easytrade
   HELM_REGISTRY: oci://ghcr.io/arctiqdynatracedemo/easytrade/helm
   HELM_CHART_PATH: helm/easytrade
-  
+
 jobs:
   prepare:
     runs-on: ubuntu-24.04
@@ -72,12 +72,12 @@ jobs:
 
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             pr_number="${{ github.event.pull_request.number }}"
-            version="${base}-pr.${pr_number}+sha.${sha_short}"
+            version="${base}-pr.${pr_number}-sha.${sha_short}"
           elif [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            version="${base}-dev+sha.${sha_short}"
+            version="${base}-dev-sha.${sha_short}"
           else
             # Optional: other branches treated as dev builds too
-            version="${base}-dev+sha.${sha_short}"
+            version="${base}-dev-sha.${sha_short}"
           fi
 
           echo "Computed base: ${base} (from ${source})"
