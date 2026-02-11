@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          sha_short="$(echo "${GITHUB_SHA}" | cut -c1-8)"
+          sha_short="$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-8)"
 
           # Manifest key to read. For monorepos, change "." to "packages/your-service" etc.
           manifest_key="."
