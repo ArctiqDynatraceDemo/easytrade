@@ -1,3 +1,4 @@
 {
-    "extra-labels": "release"
+    "release-label": "released",
+    "label": "release-pending"
 }
