@@ -109,7 +109,7 @@ jobs:
   update-tags:
     runs-on: ubuntu-24.04
     needs: build-push-easytrade
-    if: ${{ github.event_name == 'pull_request' && !contains(github.event.issue.labels.*.name, 'released') }}
+    if: ${{ github.event_name == 'pull_request' && !contains(github.event.issue.labels.*.name, 'release-pending') }}
     steps:
       - run: gh issue edit "$NUMBER" --add-label "$LABELS"
         env:
