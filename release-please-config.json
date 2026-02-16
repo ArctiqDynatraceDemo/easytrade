@@ -1,4 +1,9 @@
 {
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
     "release-label": "released",
-    "label": "release-pending"
+    "label": "release-pending",
+    "release-type": "simple",
+    "packages": {
+        ".": {}
+    }
 }
