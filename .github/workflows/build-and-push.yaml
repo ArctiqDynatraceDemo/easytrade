@@ -3,14 +3,10 @@ on:
   pull_request:
     branches:
       - "main"
-    paths:
-      - src/**
   push:
     branches:
       - "main"
-    paths:
-      - src/**
-      - ".github/**"
+  release:
   workflow_dispatch:
 
 permissions:
@@ -30,7 +26,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       images: ${{ steps.retrieve-images.outputs.images }}
-      version: ${{ steps.version.outputs.version }}
+      version: ${{ github.event.release.tag_name || steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,12 +35,13 @@ jobs:
       - name: Compute SemVer from release-please manifest (PR branch, else main)
         id: version
         shell: bash
+        if: ${{ github.event_name != "release" }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
-          sha_short="$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-8)"
+          sha_short="$(echo "${{ github.event.pull_request.head.sha || github.sha }}" | cut -c1-8)"
 
           # Manifest key to read. For monorepos, change "." to "packages/your-service" etc.
           manifest_key="."
@@ -108,33 +105,15 @@ jobs:
           context: src/${{ matrix.image }}
           push: true
           tags: ${{ env.REGISTRY }}/${{ matrix.image }}:${{ needs.prepare.outputs.version }}
-      # - name: Build Docker images (pr event)
-      #   id: build-on-pr
-      #   shell: bash
-      #   if: ${{ github.event_name == 'pull_request' }}
-      #   run: |
-      #     echo "Building image ${{ matrix.image }} with tag: $TAG"
-      #     docker build --push src/${{ matrix.image }} -t ${{ env.REGISTRY }}/${{ matrix.image }}:$TAG --annotation "pr_number=${{ github.event.number }}"
-      # - name: Push Docker images
-      #   shell: bash
-      #   run: |
-      #     echo "Pushing images to registry..."
-      #     docker push ${{ env.REGISTRY }}/${{ matrix.image }}:$TAG
-      #     echo "Successfully pushed all images with tag: $TAG"
 
-  # octopus:
-  #   runs-on: ubuntu-24.04
-  #   needs: [build-push-easytrade, prepare]
-  #   env:
-  #     OCTOPUS_API_KEY: ${{ secrets.OCTOPUS_API_KEY  }}
-  #     OCTOPUS_URL: ${{ secrets.OCTOPUS_URL }}
-  #     OCTOPUS_SPACE: 'Default'
-  #   steps:
-  #     - name: Create a release in Octopus Deploy 🐙
-  #       id: octopus_release 
-  #       uses: OctopusDeploy/create-release-action@v4
-  #       with:
-  #         project: 'easytrade'
-  #         git_ref: ${{ github.head_ref || github.ref }}
-  #         git_commit: ${{ github.event.after || github.event.pull_request.head.sha }}
-  #         package_version: ${{ env.TAG }}
+  update-tags:
+    runs-on: ubuntu-24.04
+    needs: build-push-easytrade
+    if: ${{ github.event_name == "pull_request" && !contains(github.event.issue.labels.*.name, 'release' }}
+    steps:
+      - run: gh issue edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: preview
