@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - "main"
-  release:
   workflow_dispatch:
 
 permissions:
@@ -26,7 +25,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       images: ${{ steps.retrieve-images.outputs.images }}
-      version: ${{ github.event.release.tag_name || steps.version.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
