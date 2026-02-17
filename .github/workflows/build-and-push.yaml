@@ -50,16 +50,15 @@ jobs:
           head_ref="$(echo "$pr_json" | jq -r '.[0].headRefName // empty')"
 
           if [[ -n "$head_ref" ]]; then
-            # Read manifest from release-please PR branch
-            git fetch origin "${head_ref}:${head_ref}" --force >/dev/null
-            base="$(git show "${head_ref}:.release-please-manifest.json" | jq -r --arg k "$manifest_key" '.[$k]')"
+            git fetch origin "${head_ref}" --force >/dev/null
+            base="$(git show "FETCH_HEAD:.release-please-manifest.json" | jq -r --arg k "$manifest_key" '.[$k]')"
             source="release-please PR branch (${head_ref})"
           else
-            # Fallback: read manifest from main
-            git fetch origin main:main --force >/dev/null
-            base="$(git show "main:.release-please-manifest.json" | jq -r --arg k "$manifest_key" '.[$k]')"
+            git fetch origin main --force >/dev/null
+            base="$(git show "origin/main:.release-please-manifest.json" | jq -r --arg k "$manifest_key" '.[$k]')"
             source="main branch"
           fi
+
 
           if [[ -z "$base" || "$base" == "null" ]]; then
             echo "ERROR: Could not read version from .release-please-manifest.json key '${manifest_key}' on ${source}"
