@@ -7,8 +7,7 @@ step "update-argo-cd-application-image-tags" {
             Octopus.Action.ArgoCD.CommitMessageSummary = "Octopus Deploy updated image versions"
             Octopus.Action.ArgoCD.CommitMethod = "DirectCommit"
         }
-        worker_pool = "hosted-windows"
-        worker_pool_variable = ""
+        worker_pool = "hosted-ubuntu"
 
         packages "easytrade_credit-card-order-service" {
             acquisition_location = "NotAcquired"
@@ -207,5 +206,57 @@ step "update-argo-cd-application-image-tags" {
                 SelectionMode = "immediate"
             }
         }
+    }
+}
+
+step "deploy-kubernetes-yaml" {
+    name = "Deploy Kubernetes YAML"
+    properties = {
+        Octopus.Action.TargetRoles = "easytrade-clusters"
+    }
+
+    action {
+        action_type = "Octopus.KubernetesDeployRawYaml"
+        properties = {
+            Octopus.Action.Kubernetes.DeploymentTimeout = "180"
+            Octopus.Action.Kubernetes.ResourceStatusCheck = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.Enabled = "True"
+            Octopus.Action.Kubernetes.ServerSideApply.ForceConflicts = "True"
+            Octopus.Action.KubernetesContainers.CustomResourceYaml = <<-EOT
+                apiVersion: argoproj.io/v1alpha1
+                kind: AnalysisRun
+                metadata:
+                  name: easytrade-analysis
+                  annotations:
+                    argocd.argoproj.io/hook: PostSync
+                    argocd.argoproj.io/hook-delete-policy: HookSucceeded,HookFailed
+                spec:
+                  metrics:
+                  - name: wait-60-seconds
+                    successCondition: status.succeeded > 0
+                    failureLimit: 1
+                    provider:
+                      job:
+                        spec:
+                          backoffLimit: 0
+                          template:
+                            spec:
+                              restartPolicy: Never
+                              containers:
+                              - name: wait
+                                image: busybox:1.36
+                                command:
+                                - sh
+                                - -c
+                                - |
+                                  echo "Starting 60s validation..."
+                                  sleep 60
+                                  echo "Validation complete."
+                                  exit 0
+                EOT
+            Octopus.Action.KubernetesContainers.Namespace = "easytrade-#{Octopus.Environment.Name}"
+            Octopus.Action.Script.ScriptSource = "Inline"
+        }
+        worker_pool = "hosted-ubuntu"
     }
 }
