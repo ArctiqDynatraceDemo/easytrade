@@ -114,12 +114,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          NUMBER: ${{ github.event.issue.number }}
+          NUMBER: ${{ github.event.number }}
           LABELS: ready-to-deploy
       - run: gh issue edit "$NUMBER" --add-label "$LABELS"
         if: ${{ github.event_name == 'pull_request' && !contains(github.event.issue.labels.*.name, 'release-pending') }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          NUMBER: ${{ github.event.issue.number }}
+          NUMBER: ${{ github.event.number }}
           LABELS: preview
