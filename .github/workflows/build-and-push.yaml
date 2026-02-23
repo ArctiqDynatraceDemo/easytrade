@@ -11,6 +11,8 @@ on:
 permissions:
   contents: read
   packages: write
+  issues: write
+  pull-requests: write
 
 env:
   GAR_ADDRESS: europe-docker.pkg.dev
