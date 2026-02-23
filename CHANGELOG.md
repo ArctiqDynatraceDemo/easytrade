@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/ArctiqDynatraceDemo/easytrade/compare/v1.0.4...v1.0.5) (2026-02-23)
+
+
+### Bug Fixes
+
+* test ([b866b9b](https://github.com/ArctiqDynatraceDemo/easytrade/commit/b866b9b3371c2bf67a094461e4a4530482e5545c))
+
 ## [1.0.4](https://github.com/ArctiqDynatraceDemo/easytrade/compare/v1.0.3...v1.0.4) (2026-02-17)
 
 
