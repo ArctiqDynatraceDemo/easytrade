@@ -42,7 +42,8 @@ jobs:
         run: |
           set -euo pipefail
 
-          sha_short="$(echo "${{ github.event.pull_request.head.sha || github.sha }}" | cut -c1-8)"
+          sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          sha_short="$(echo sha | cut -c1-8)"
 
           # Manifest key to read. For monorepos, change "." to "packages/your-service" etc.
           manifest_key="."
@@ -69,7 +70,7 @@ jobs:
 
           if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
             pr_number="${{ github.event.pull_request.number }}"
-            version="pr.${pr_number}-sha.${sha_short}"
+            version="pr.${pr_number}-sha.${sha}"
           elif [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             version="${base}-dev-sha.${sha_short}"
           else
